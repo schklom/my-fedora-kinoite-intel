@@ -1,7 +1,7 @@
 # image will be published to ghcr.io/<user>/<name>
 name: my-fedora-kinoite-intel
 # description will be included in the image's metadata
-description: A starting point for further customization of uBlue images. Make your own! https://universal-blue.org/tinker/make-your-own/. I added layers to run KeePass (using mono), decode videos better, manage VMs, manage custom shortcuts.
+description: A starting point for further customization of uBlue images. Make your own! https://universal-blue.org/tinker/make-your-own/. I added layers to run KeePass (using mono), decode videos better, manage VMs, manage custom shortcuts. Upgraded to images from https://github.com/secureblue/secureblue
 
 # the base image to build on top of (FROM) and the version tag to use
 # base-image: ghcr.io/ublue-os/kinoite-main
