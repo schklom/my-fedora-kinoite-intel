@@ -1,11 +1,13 @@
 # image will be published to ghcr.io/<user>/<name>
 name: my-fedora-kinoite-intel
 # description will be included in the image's metadata
-description: This is my personal OS image.
+description: A starting point for further customization of uBlue images. Make your own! https://universal-blue.org/tinker/make-your-own/. I added layers to run KeePass (using mono), decode videos better, manage VMs, manage custom shortcuts.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: 40 # latest is also supported if you want new updates ASAP
+# base-image: ghcr.io/ublue-os/kinoite-main
+# https://github.com/secureblue/secureblue
+base-image: ghcr.io/secureblue/kinoite-main-userns-hardened
+image-version: latest # 40, or latest is also supported if you want new updates ASAP
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
@@ -22,11 +24,34 @@ modules:
     install:
       # - micro
       # - starship
+      - distrobox # run any os in containers easily
+      - htop # Better "top"
+      - igt-gpu-tools # To check GPU usage via sudo intel_gpu_top
+      - intel-media-driver # Hardware acceleration with Intel (c.f. https://wiki.archlinux.org/title/Hardware_video_acceleration)
+      - kdepim-addons # For the Event Calendar widget, to work with external calendars
+      - kontact # Calendar + Contact + Task manager. If installed via Flatpak, it will not work with Event Calendar.
+      - libvirt # Run VMs
+      - mono-complete # KeePass
+      - mozilla-openh264 # Video support on Firefox
+      - podman-compose # Use docker.compose.yml files with podman
+      - plasma-workspace-x11 # Fedora decided to remove X11, so I have to add it back
+      # - usbguard # Protect against unknown USB devices, already in secureblue
+      # https://docs.fedoraproject.org/en-US/quick-docs/rpmfusion-setup/#_enabling_the_rpm_fusion_repositories_for_ostree_based_systems
+      - rpmfusion-free-release
+      - rpmfusion-nonfree-release
+      - virt-manager # Run VMs
+      - xbindkeys # Shortcuts
+      - xdotool # KeePass
+      - xinput # KeePass
+
     remove:
       # example: removing firefox (in favor of the flatpak)
       # "firefox" is the main package, "firefox-langpacks" is a dependency
       # - firefox
       # - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+      - firefox
+      - noopenh264 # Pointless for now in Fedora 40: https://discussion.fedoraproject.org/t/h264-video-playback-in-firefox-in-f40/111872
+
 
   - type: default-flatpaks
     notify: true # Send notification after install/uninstall is finished (true/false)
@@ -42,8 +67,55 @@ modules:
       # Flatpak runtimes are not supported (like org.winehq.Wine//stable-23.08),
       # only normal flatpak applications are (like Floorp Lightning web browser in this example).
       # Installing different branches of the same Flatpak is not supported.
+      # Browsers
+        - org.mozilla.firefox
+        - io.github.ungoogled_software.ungoogled_chromium
+        - org.torproject.torbrowser-launcher
+        # Media
+        - org.libreoffice.LibreOffice
+        - org.kde.okular
+        - org.kde.kwrite
+        - org.videolan.VLC
+        - com.stremio.Stremio
+        - com.obsproject.Studio
+        - com.github.iwalton3.jellyfin-media-player
+        - org.gnome.Shotwell
+        # - org.clementine_player.Clementine
+        # Network
+        - com.protonvpn.www
+        - org.jdownloader.JDownloader
+        - org.kde.ktorrent
+        - org.kde.krdc
+        # Social
+        - org.mozilla.Thunderbird
+        # - eu.betterbird.Betterbird
+        - com.skype.Client
+        - com.github.IsmaelMartinez.teams_for_linux
+        - org.signal.Signal
+        - io.github.mahmoudbahaa.outlook_for_linux
+        - com.slack.Slack
+        # Developer tools
+        - com.vscodium.codium
+        - org.fedoraproject.MediaWriter
+        - org.kde.isoimagewriter
+        # Others
+        - com.valvesoftware.Steam
+        - com.usebottles.bottles
+        - com.dropbox.Client
+        - org.zotero.Zotero
+        # - org.gnome.OCRFeeder
+        - org.gnome.Calculator
+        - io.github.prateekmedia.appimagepool
+        
       remove:
       # - org.gnome.eog
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
 
+  # https://blue-build.org/reference/modules/script/
+  - type: script
+    snippets:
+      # Journald size limits
+      - "sed -i "s|#SystemMaxUse=|SystemMaxUse=200M|" /etc/systemd/journald.conf"
+    # scripts:
+      # - myscript.sh # example: run config/scripts/myscript.sh
