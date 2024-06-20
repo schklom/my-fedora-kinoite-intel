@@ -7,6 +7,7 @@ modules:
     snippets:
       # Journald size limits
       # - "sed -i 's|#SystemMaxUse=|SystemMaxUse=200M|' /etc/systemd/journald.conf"
-      - "echo 'SystemMaxUse=200M' >> /etc/systemd/journald.conf"
+      - "mkdir -p /etc/systemd/journald.conf.d/"
+      - "echo 'SystemMaxUse=400M' > /etc/systemd/journald.conf.d/max_size.conf"
     # scripts:
       # - myscript.sh # example: run config/scripts/myscript.sh
