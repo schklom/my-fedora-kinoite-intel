@@ -1,0 +1,12 @@
+# https://blue-build.org/how-to/multiple-files/
+modules:
+  - type: signing # this sets up the proper policy & signing files for signed images to work fully
+
+  # https://blue-build.org/reference/modules/script/
+  - type: script
+    snippets:
+      # Journald size limits
+      # - "sed -i 's|#SystemMaxUse=|SystemMaxUse=200M|' /etc/systemd/journald.conf"
+      - "echo 'SystemMaxUse=200M' >> /etc/systemd/journald.conf"
+    # scripts:
+      # - myscript.sh # example: run config/scripts/myscript.sh
